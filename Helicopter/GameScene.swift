@@ -14,6 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
     private var heli: SKSpriteNode!
+    private var heli2: SKSpriteNode!
     private var touchLocation: CGPoint?
     private var heliAtlas = [SKTexture]()
 
@@ -21,25 +22,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         view.showsFPS = false
         view.showsNodeCount = false
-        
-        createHeli()
+    
         createArea()
+        addHeli()
         createAtlas()
         animateHeli()
-        moveHeliRandom()
+        moveHeliRandom(sprite:heli)
+        moveHeliRandom(sprite:heli2)
+
     }
     
-    //Add helicopter in gamescene and set physics
-    func createHeli(){
-        heli = SKSpriteNode(imageNamed: "heli1.png")
-        heli.position = CGPoint(x: 225, y: 35)
-        heli.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: heli.size.width, height: heli.size.height))
-        heli.physicsBody?.affectedByGravity = false
-        heli.physicsBody?.angularDamping = CGFloat(0)
-        heli.physicsBody?.linearDamping = CGFloat(0)
-        heli.physicsBody?.restitution = CGFloat(1)
-        heli.physicsBody?.allowsRotation = false
+    func addHeli(){
+        heli = Helicopter()
+        heli2 = Helicopter()
+        var xPos:Int = self.getRandomNum(lowerValue: 0, upperValue: 300)
+        var yPos:Int = self.getRandomNum(lowerValue: 0, upperValue: 300)
+        heli.position = CGPoint(x:xPos,y:yPos)
+        
+        xPos = self.getRandomNum(lowerValue: 0, upperValue: 300)
+        yPos = self.getRandomNum(lowerValue: 0, upperValue: 300)
+        heli2.position = CGPoint(x:xPos,y:yPos)
+        
+        heli.name = "heli1"
+        heli2.name = "heli2"
+        
         self.addChild(heli)
+        self.addChild(heli2)
     }
 
     //Create player area with bounderies, together with physics
@@ -74,29 +82,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                              timePerFrame: 0.1,
                              resize: false,
                              restore: true)))
+        
+        heli2.run(SKAction.repeatForever(
+            SKAction.animate(with: heliAtlas,
+                             timePerFrame: 0.1,
+                             resize: false,
+                             restore: true)))
     }
     
     //Moves the helicopter with a given velocity
-    func moveHeliRandom(){
+    func moveHeliRandom(sprite: SKSpriteNode){
         
-        //Choose two random directions
-        let lowerValue = -200
-        let upperValue = 400
-        let dx = Int(arc4random_uniform(UInt32(upperValue - lowerValue + 1))) +   lowerValue
-        let dy = Int(arc4random_uniform(UInt32(upperValue - lowerValue + 1))) +   lowerValue
+        //Get two random directions
+        let dx = self.getRandomNum(lowerValue: -200, upperValue: 400)
+        let dy = self.getRandomNum(lowerValue: -200, upperValue: 400)
 
         //Apply velocity
-        heli.physicsBody?.velocity = CGVector(dx: dx, dy: dy)
+        sprite.physicsBody?.velocity = CGVector(dx: dx, dy: dy)
+    
 
     }
     
-    //Touch controls for helicopter
+    func getRandomNum(lowerValue:Int, upperValue:Int) -> Int{
+        //Create random number
+        return Int(arc4random_uniform(UInt32(upperValue - lowerValue + 1))) +   lowerValue
+    }
+    
+    //Touch controls for helicopter and freeze when touched
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        
+        
         for touch in touches{
             heli.physicsBody?.velocity = CGVector(dx: 0, dy:0)
             touchLocation = touch.location(in: self)
             heli?.position.x = (touchLocation?.x)!
             heli?.position.y = (touchLocation?.y)!
+            
             
             //let position = touch.location(in: view)
             //print(position)
@@ -104,13 +126,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    //Move helicopter after touching it
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        moveHeliRandom()
+        
+        let touch = touches.first as UITouch!
+        let touchLocation = touch?.location(in: self)
+        let targetNode = atPoint(touchLocation!) as? SKSpriteNode
+        
+        if targetNode == nil{
+            return
+        } else{
+            moveHeliRandom(sprite:targetNode!)
+        }
+
     }
 
+
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-        
+
         
     }
-}
+    
+    
+    class Helicopter: SKSpriteNode {
+        init() {
+            let texture = SKTexture(imageNamed: "heli1.png")
+            super.init(texture: texture, color: .blue, size: texture.size())
+            
+            self.position = CGPoint(x: 225, y: 35)
+            self.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: self.size.width, height: self.size.height))
+            self.physicsBody?.affectedByGravity = false
+            self.physicsBody?.angularDamping = CGFloat(0)
+            self.physicsBody?.linearDamping = CGFloat(0)
+            self.physicsBody?.restitution = CGFloat(1)
+            self.physicsBody?.allowsRotation = false
+            //self.physicsBody = SKPhysicsBody(rectangleOf: self.size)
+            
+        }
+        
+        required init?(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        
+
+        }
+    }
+
