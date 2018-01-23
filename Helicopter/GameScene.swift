@@ -14,6 +14,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
     private var heli: SKSpriteNode!
+    private var touchLocation: CGPoint?
+
+
     
     override func didMove(to view: SKView) {
         createHeli()
@@ -26,9 +29,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         heli.position = CGPoint(x: 225, y: 35)
         heli.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: heli.size.width, height: heli.size.height))
         heli.physicsBody?.affectedByGravity = false
-        heli.physicsBody?.angularDamping = CGFloat(0.0)
-        heli.physicsBody?.linearDamping = CGFloat(0.0)
+        heli.physicsBody?.angularDamping = CGFloat(0)
+        heli.physicsBody?.linearDamping = CGFloat(0)
         heli.physicsBody?.restitution = CGFloat(1)
+        heli.physicsBody?.allowsRotation = false
         self.addChild(heli)
     }
 
@@ -43,6 +47,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func moveHeliRandom(){
         heli.physicsBody?.velocity = CGVector(dx: 200.0, dy: 200.0)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches{
+            touchLocation = touch.location(in: self)
+            
+            heli?.position.x = (touchLocation?.x)!
+            heli?.position.y = (touchLocation?.y)!
+            
+
+        }
     }
 
     override func update(_ currentTime: TimeInterval) {
