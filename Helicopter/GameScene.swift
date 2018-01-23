@@ -18,12 +18,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         createHeli()
         createArea()
-        moveHeli()
+        moveHeliRandom()
     }
     
     func createHeli(){
         heli = SKSpriteNode(imageNamed: "heli1.png")
-        heli.position = CGPoint(x: 100, y: 100)
+        heli.position = CGPoint(x: 225, y: 35)
         heli.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: heli.size.width, height: heli.size.height))
         heli.physicsBody?.affectedByGravity = false
         heli.physicsBody?.angularDamping = CGFloat(0.0)
@@ -33,14 +33,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func createArea() {
-        self.backgroundColor = .purple
+        self.scene?.anchorPoint = CGPoint(x: 0, y: 0)
+        self.backgroundColor = UIColor(red:255, green:0, blue: 254, alpha: 1.0)
         self.scaleMode = .aspectFit
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         self.physicsBody?.friction = 0
         self.physicsBody?.restitution = 1
     }
     
-    func moveHeli(){
+    func moveHeliRandom(){
         heli.physicsBody?.velocity = CGVector(dx: 200.0, dy: 200.0)
     }
 
