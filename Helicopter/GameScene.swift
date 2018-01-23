@@ -78,13 +78,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Moves the helicopter with a given velocity
     func moveHeliRandom(){
-        heli.physicsBody?.velocity = CGVector(dx: 200.0, dy: 200.0)
+        
+        //Choose two random directions
+        let lowerValue = -200
+        let upperValue = 400
+        let dx = Int(arc4random_uniform(UInt32(upperValue - lowerValue + 1))) +   lowerValue
+        let dy = Int(arc4random_uniform(UInt32(upperValue - lowerValue + 1))) +   lowerValue
+
+        //Apply velocity
+        heli.physicsBody?.velocity = CGVector(dx: dx, dy: dy)
 
     }
     
     //Touch controls for helicopter
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches{
+            heli.physicsBody?.velocity = CGVector(dx: 0, dy:0)
             touchLocation = touch.location(in: self)
             heli?.position.x = (touchLocation?.x)!
             heli?.position.y = (touchLocation?.y)!
@@ -93,6 +102,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //print(position)
 
         }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        moveHeliRandom()
     }
 
     override func update(_ currentTime: TimeInterval) {
